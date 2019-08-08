@@ -3,13 +3,16 @@ const bodyParser = require("body-parser");
 const graphqlHttp = require("express-graphql");
 const { buildSchema } = require("graphql");
 const env = require("dotenv").config();
+const mongoose = require("mongoose");
+
+const port = "44441";
 const app = express();
 
 app.use(bodyParser.json());
 
 const events = [];
 
-console.log(process.env);
+
 
 app.use(
     "/graphql",
@@ -69,5 +72,16 @@ app.use(
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
+const { MONGO_USER, MONGO_PASSWORD, APP_DB } = process.env;
 
-app.listen("44441");
+mongoose.connect(`
+  mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0-xswl0.azure.mongodb.net/${APP_DB}?retryWrites=true&w=majority
+`,{useNewUrlParser: true})
+.then (good => {
+  app.listen(port);
+  const { host } = good.connection;
+  console.log(`Server listening on port ${port}, connected to database ${host}`);
+})
+.catch (err => {
+  console.error(`couldn't connect to server. Error: ${err}`);
+})

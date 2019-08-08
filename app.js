@@ -2,14 +2,14 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const graphqlHttp = require("express-graphql");
 const { buildSchema } = require("graphql");
-
+const env = require("dotenv").config();
 const app = express();
 
 app.use(bodyParser.json());
 
-const events = [
-    
-];
+const events = [];
+
+console.log(process.env);
 
 app.use(
     "/graphql",

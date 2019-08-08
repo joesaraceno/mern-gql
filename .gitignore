@@ -2,3 +2,4 @@
 .ssh
 .vscode
 .vsconfig
+.env

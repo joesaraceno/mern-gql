@@ -56,7 +56,6 @@ app.use(
             },
             createEvent: args => {
                 const event = new Event({
-                    _id: getRandomArbitrary(1, 2).toString(),
                     title: args.event.title,
                     cost: args.event.cost,
                     start_time: args.event.start_time,

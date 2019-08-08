@@ -5,6 +5,8 @@ const { buildSchema } = require("graphql");
 const env = require("dotenv").config();
 const mongoose = require("mongoose");
 
+const Event = require("./models/event");
+
 const port = "44441";
 const app = express();
 
@@ -52,17 +54,25 @@ app.use(
             events: () => {
                 return events;
             },
-            createEvent: ({event}) => {
-                const input = {
+            createEvent: args => {
+                const event = new Event({
                     _id: getRandomArbitrary(1, 2).toString(),
-                    title: event.title,
-                    cost: event.cost,
-                    start_time: event.start_time,
-                    end_time: event.end_time,
-                    description: event.description 
-                };
-                events.push(input);
-                return input;
+                    title: args.event.title,
+                    cost: args.event.cost,
+                    start_time: args.event.start_time,
+                    end_time: args.event.end_time,
+                    description: args.event.description 
+                });
+                return event
+                  .save()
+                  .then(result => {
+                    console.log(`saved ${result}`);
+                    return { ...result._doc };
+                  })
+                  .catch(err =>  {
+                    console.log(`failed to save ${ev}: Error: ${err}}`);
+                    throw new Error(err);
+                });
             },
         },
         graphiql: true,

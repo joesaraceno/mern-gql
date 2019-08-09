@@ -92,14 +92,26 @@ app.use(
             description: args.event.description,
             createdBy: "5d4cfb8092114f1bb9c9b807" // dummy user to be removed later
           });
+          let createdEvent = {};
           return event
             .save()
             .then(result => {
-              console.log(`saved ${result}`);
-              return { ...result._doc };
+              // return { ...result._doc };
+              createdEvent = { ...result._doc };
+              return User.findById('5d4cfb8092114f1bb9c9b807')
+            })
+            .then(user => {
+              if (!user) {
+                throw new Error (`no user ${user} found for event: ${event}`);
+              }
+              user.createdEvents.push(event);
+              return user.save();
+            })
+            .then(event => {
+              return createdEvent;
             })
             .catch(err =>  {
-              console.log(`failed to save ${ev}: Error: ${err}}`);
+              console.log(`failed to save ${event}: Error: ${err}}`);
               throw new Error(err);
           });
         },

@@ -4,8 +4,11 @@ const graphqlHttp = require("express-graphql");
 const { buildSchema } = require("graphql");
 const env = require("dotenv").config();
 const mongoose = require("mongoose");
+const bcrypt = require('bcryptjs');
+const _ = require ("lodash");
 
 const Event = require("./models/event");
+const User = require('./models/user');
 
 const port = "44441";
 const app = express();
@@ -38,6 +41,12 @@ app.use(
                 end_time: String!,
             },
 
+            type User {
+              _id: ID!,
+              email: String!,
+              password: String
+            }
+
             input EventInput {
                 title: String!,
                 description: String!,
@@ -46,12 +55,19 @@ app.use(
                 end_time: String!,
             },
 
+            input UserInput {
+              email: String!,
+              password: String!
+            }
+
             type RootQuery {
-                events: [Event!]! 
+                events: [Event!]!
+                users: [User!]!
             },
 
             type RootMutation {
                 createEvent(event: EventInput): Event
+                createUser(user: UserInput): User
             },
 
             schema {
@@ -61,7 +77,6 @@ app.use(
         `),
       rootValue: {
         events: () => {
-          console.log('finding all events');
           return Event.find()
             .then(events => events.map(event => ({ ...event._doc })))
             .catch(err => {
@@ -87,6 +102,30 @@ app.use(
               throw new Error(err);
           });
         },
+        users: () => {
+          return User.find()
+            .then(users => users.map(user => (_.omit({ ...user._doc }, 'password'))))
+            .catch(err => {throw new Error()})
+        },
+        createUser: args => {
+          return bcrypt.hash(args.user.password, 12)
+          .then(hashed => {
+            const user = new User({
+              email: args.user.email,
+              password: hashed,
+            });
+            return user
+              .save()
+              .then(result => {
+                return _.omit({ ...result._doc }, 'password');
+              })
+              .catch(err =>  {
+                console.log(`failed to save ${user}: Error: ${err}}`);
+                throw new Error(err);
+            });
+          })
+          .catch(err => {throw new Error (err)})
+        }
       },
     graphiql: true,
   })

@@ -89,7 +89,8 @@ app.use(
             cost: args.event.cost,
             start_time: args.event.start_time,
             end_time: args.event.end_time,
-            description: args.event.description 
+            description: args.event.description,
+            createdBy: "5d4cfb8092114f1bb9c9b807" // dummy user to be removed later
           });
           return event
             .save()
@@ -108,7 +109,13 @@ app.use(
             .catch(err => {throw new Error()})
         },
         createUser: args => {
-          return bcrypt.hash(args.user.password, 12)
+          return User.findOne({email: args.user.email})
+          .then(found => {
+            if(found) {
+              throw new Error(`user with ${args.user.email} already exists`);
+            }
+            return bcrypt.hash(args.user.password, 12)
+          })
           .then(hashed => {
             const user = new User({
               email: args.user.email,

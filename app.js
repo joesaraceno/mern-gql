@@ -25,8 +25,6 @@ mongoose.connect(`
   console.error(`couldn't connect to server. Error: ${err}`);
 });
 
-const events = [];
-
 app.use(
     "/graphql",
     graphqlHttp({
@@ -61,30 +59,35 @@ app.use(
                 mutation: RootMutation
             },
         `),
-        rootValue: {
-            events: () => {
-                return events;
-            },
-            createEvent: args => {
-                const event = new Event({
-                    title: args.event.title,
-                    cost: args.event.cost,
-                    start_time: args.event.start_time,
-                    end_time: args.event.end_time,
-                    description: args.event.description 
-                });
-                return event
-                  .save()
-                  .then(result => {
-                    console.log(`saved ${result}`);
-                    return { ...result._doc };
-                  })
-                  .catch(err =>  {
-                    console.log(`failed to save ${ev}: Error: ${err}}`);
-                    throw new Error(err);
-                });
-            },
+      rootValue: {
+        events: () => {
+          console.log('finding all events');
+          return Event.find()
+            .then(events => events.map(event => ({ ...event._doc })))
+            .catch(err => {
+              throw new Error(err);
+            });
         },
-        graphiql: true,
-    })
+        createEvent: args => {
+          const event = new Event({
+            title: args.event.title,
+            cost: args.event.cost,
+            start_time: args.event.start_time,
+            end_time: args.event.end_time,
+            description: args.event.description 
+          });
+          return event
+            .save()
+            .then(result => {
+              console.log(`saved ${result}`);
+              return { ...result._doc };
+            })
+            .catch(err =>  {
+              console.log(`failed to save ${ev}: Error: ${err}}`);
+              throw new Error(err);
+          });
+        },
+      },
+    graphiql: true,
+  })
 );

@@ -16,6 +16,32 @@ const { MONGO_USER, MONGO_PASSWORD, APP_DB } = process.env;
 
 app.use(bodyParser.json());
 
+// basically implmenting our own populate like mongo
+// to force a requery when we need to grab an item in a related table
+const user = userId => {
+  return User.findById(userId)
+  .then(user => {
+    return { 
+      ...user._doc, 
+      createdEvents: events.bind(this, user._doc.createdEvents) 
+    }
+  })
+  .catch(err => { throw new Error(err) });
+}
+
+const events = eventIds => {
+  return Event.find({ _id: {$in: eventIds}})
+  .then(events => {
+    return events.map(event => {
+      return { 
+        ...event._doc, 
+        createdBy: user.bind(this, event.createdBy) 
+      }
+    })
+  })
+  .catch(err => { throw new Error(err) });
+}
+
 mongoose.connect(`
   mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0-xswl0.azure.mongodb.net/${APP_DB}?retryWrites=true&w=majority
 `,{useNewUrlParser: true})
@@ -31,54 +57,56 @@ mongoose.connect(`
 app.use(
     "/graphql",
     graphqlHttp({
-        schema: buildSchema (`
-            type Event {
-                _id: ID!,
-                title: String!,
-                description: String!,
-                cost: Float!,
-                start_time: String!,
-                end_time: String!,
-            },
+      schema: buildSchema (`
+          type Event {
+            _id: ID!,
+            title: String!,
+            description: String!,
+            cost: Float!,
+            start_time: String!,
+            end_time: String!,
+            createdBy: User!,
+          },
 
-            type User {
-              _id: ID!,
-              email: String!,
-              password: String
-            }
+          type User {
+            _id: ID!,
+            email: String!,
+            password: String,
+            createdEvents: [Event!],
+          },
 
-            input EventInput {
-                title: String!,
-                description: String!,
-                cost: Float!,
-                start_time: String!,
-                end_time: String!,
-            },
+          input EventInput {
+            title: String!,
+            description: String!,
+            cost: Float!,
+            start_time: String!,
+            end_time: String!,
+          },
 
-            input UserInput {
-              email: String!,
-              password: String!
-            }
+          input UserInput {
+            email: String!,
+            password: String!
+          },
 
-            type RootQuery {
-                events: [Event!]!
-                users: [User!]!
-            },
+          type RootQuery {
+            events: [Event!]!
+            users: [User!]!
+          },
 
-            type RootMutation {
-                createEvent(event: EventInput): Event
-                createUser(user: UserInput): User
-            },
+          type RootMutation {
+            createEvent(event: EventInput): Event
+            createUser(user: UserInput): User
+          },
 
-            schema {
-                query: RootQuery,
-                mutation: RootMutation
-            },
-        `),
+          schema {
+            query: RootQuery,
+            mutation: RootMutation
+          },
+      `),
       rootValue: {
         events: () => {
           return Event.find()
-            .then(events => events.map(event => ({ ...event._doc })))
+            .then(events => events.map(event => ({ ...event._doc, createdBy: user.bind(this, event._doc.createdBy )})))
             .catch(err => {
               throw new Error(err);
             });
@@ -90,24 +118,23 @@ app.use(
             start_time: args.event.start_time,
             end_time: args.event.end_time,
             description: args.event.description,
-            createdBy: "5d4cfb8092114f1bb9c9b807" // dummy user to be removed later
+            createdBy: "5d4e42e98bea670bda76ce81" // dummy user to be removed later
           });
           let createdEvent = {};
           return event
             .save()
             .then(result => {
-              // return { ...result._doc };
               createdEvent = { ...result._doc };
-              return User.findById('5d4cfb8092114f1bb9c9b807')
+              return User.findById('5d4e42e98bea670bda76ce81') // hardoced update to dummy user's createdEvents array
             })
             .then(user => {
               if (!user) {
-                throw new Error (`no user ${user} found for event: ${event}`);
+                throw new Error (`no user ${user} found for event: ${result._id}`);
               }
               user.createdEvents.push(event);
               return user.save();
             })
-            .then(event => {
+            .then(user => {
               return createdEvent;
             })
             .catch(err =>  {
@@ -118,10 +145,10 @@ app.use(
         users: () => {
           return User.find()
             .then(users => users.map(user => (_.omit({ ...user._doc }, 'password'))))
-            .catch(err => {throw new Error()})
+            .catch(err => {throw new Error(err)})
         },
         createUser: args => {
-          return User.findOne({email: args.user.email})
+          return User.findOne({ email: args.user.email })
           .then(found => {
             if(found) {
               throw new Error(`user with ${args.user.email} already exists`);

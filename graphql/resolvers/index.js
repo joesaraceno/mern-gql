@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const _ = require ("lodash");
 
 const { transformDate } = require("../../utils/dateBuilder");
+const { transformEvent } = require("../../utils/eventUtil");
 
 const Event = require('../../models/event');
 const User = require('../../models/user');
@@ -12,10 +13,7 @@ const Booking = require('../../models/booking');
 const singleEvent = async eventId => {
   try {
     const event = await Event.findById(eventId);
-    return {
-      ...event._doc,
-      createdBy: user.bind(this, event.createdBy),
-    }
+    return transformEvent(event);
   } catch (err) {
     throw new Error(err);
   }
@@ -25,10 +23,7 @@ const events = async eventIds => {
   try {
     const events = await Event.find({ _id: {$in: eventIds}})
     return events.map(event => {
-      return { 
-        ...event._doc, 
-        createdBy: user.bind(this, event._doc.createdBy) 
-      }
+      return transformEvent(event);
     });
   } catch (err) { 
     throw new Error(err) 
@@ -66,7 +61,9 @@ module.exports = {
   events: async () => {
     try {
       const events = await Event.find();
-      return events.map(ev => ({ ...ev._doc, createdBy: user.bind(this, ev._doc.createdBy )}));
+      return events.map(event => {
+        return transformEvent(event)
+      });
     } catch( err) {
       throw new Error(err);
     }
@@ -83,7 +80,7 @@ module.exports = {
     let createdEvent = {};
     try {
       const result = await newEvent.save();
-      createdEvent = { ...result._doc, createdBy: user.bind(this, result._doc.createdBy) };
+      createdEvent = transformEvent (result);
       const createdBy = await User.findById('5d4e42e98bea670bda76ce81') // hardoced update to dummy user's createdEvents array
       if (!createdBy) {
         console.log(`failed to update ${createdBy}: Error: ${err}}`);
@@ -147,11 +144,7 @@ module.exports = {
   cancelBooking: async args => {
     try {
       const booking = await Booking.findById(args.bookingId).populate('event');
-      const event = {
-        ...booking.event._doc,
-        createdBy: user.bind(this, booking.event._doc.createdBy),
-      }
-      console.log(event);
+      const event = transformEvent(booking.event);
       await Booking.deleteOne({ _id: args.bookingId });
       return event;
     } catch (err) {

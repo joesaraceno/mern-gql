@@ -1,46 +1,12 @@
 const bcrypt = require('bcryptjs');
 const _ = require ("lodash");
 
-const { transformDate } = require("../../utils/dateBuilder");
-const { transformEvent } = require("../../utils/eventUtil");
-
 const Event = require('../../models/event');
 const User = require('../../models/user');
 const Booking = require('../../models/booking');
 
-// basically implmenting our own populate like mongo
-// to force a requery when we need to grab an item in a related table
-const singleEvent = async eventId => {
-  try {
-    const event = await Event.findById(eventId);
-    return transformEvent(event);
-  } catch (err) {
-    throw new Error(err);
-  }
-};
-
-const events = async eventIds => {
-  try {
-    const events = await Event.find({ _id: {$in: eventIds}})
-    return events.map(event => {
-      return transformEvent(event);
-    });
-  } catch (err) { 
-    throw new Error(err) 
-  };
-};
-
-const user = async userId => {
-  try {
-    const user = await User.findById(userId)
-    return { 
-      ...user._doc, 
-      createdEvents: events.bind(this, user._doc.createdEvents) 
-    }
-  } catch(err) { 
-    throw new Error(err) 
-  };
-};
+const { transformDate } = require("../../utils/dateBuilder");
+const { singleEvent, events, user, transformEvent } = require('../../utils/schemaHandlers');
 
 module.exports = {
   bookings: async () => {
@@ -75,13 +41,13 @@ module.exports = {
       start_time: args.event.start_time,
       end_time: args.event.end_time,
       description: args.event.description,
-      createdBy: "5d4e42e98bea670bda76ce81" // dummy user to be removed later
+      createdBy: "5d506b8211d8d52593017ad9" // dummy user to be removed later
     });
     let createdEvent = {};
     try {
       const result = await newEvent.save();
       createdEvent = transformEvent (result);
-      const createdBy = await User.findById('5d4e42e98bea670bda76ce81') // hardoced update to dummy user's createdEvents array
+      const createdBy = await User.findById('5d506b8211d8d52593017ad9') // hardoced update to dummy user's createdEvents array
       if (!createdBy) {
         console.log(`failed to update ${createdBy}: Error: ${err}}`);
         throw new Error (`no user ${user} found for event: ${result._id}`);
@@ -123,9 +89,8 @@ module.exports = {
   bookEvent: async args => {
     try {
       const bookingEvent = await Event.findById(args.eventId);
-      const bookingUser = await User.findById(args.userId); // not used yet, but will need to prevent dupes
       const booking = new Booking({
-        user: '5d4e42e98bea670bda76ce81',
+        user: '5d506b8211d8d52593017ad9',
         event: bookingEvent,
       });
       const result = await booking.save();

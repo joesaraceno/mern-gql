@@ -5,14 +5,12 @@ const Event = require('../../models/event');
 const User = require('../../models/user');
 const Booking = require('../../models/booking');
 
-const { transformDate } = require("../../utils/dateBuilder");
-const { singleEvent, events, user, transformEvent, transformBooking } = require('../../utils/schemaHandlers');
+const { events, user, transformEvent, transformBooking } = require('../../utils/schemaHandlers');
 
 module.exports = {
   bookings: async () => {
     try {
       const bookings = await Booking.find();
-      // const bookingEvent = Event.find()
       return bookings.map(booking => { 
         return transformBooking(booking);
       });

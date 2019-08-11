@@ -1,11 +1,26 @@
 const bcrypt = require('bcryptjs');
 const _ = require ("lodash");
 
+const { transformDate } = require("../../utils/dateBuilder");
+
 const Event = require('../../models/event');
 const User = require('../../models/user');
+const Booking = require('../../models/booking');
 
 // basically implmenting our own populate like mongo
 // to force a requery when we need to grab an item in a related table
+const singleEvent = async eventId => {
+  try {
+    const event = await Event.findById(eventId);
+    return {
+      ...event._doc,
+      createdBy: user.bind(this, event.createdBy),
+    }
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 const events = async eventIds => {
   try {
     const events = await Event.find({ _id: {$in: eventIds}})
@@ -18,7 +33,7 @@ const events = async eventIds => {
   } catch (err) { 
     throw new Error(err) 
   };
-}
+};
 
 const user = async userId => {
   try {
@@ -30,9 +45,24 @@ const user = async userId => {
   } catch(err) { 
     throw new Error(err) 
   };
-}
+};
 
 module.exports = {
+  bookings: async () => {
+    try {
+      const bookings = await Booking.find();
+      // const bookingEvent = Event.find()
+      return bookings.map(booking => ({ 
+        ...booking._doc,
+        user: user.bind(this, booking._doc.user),
+        event: singleEvent.bind(this, booking._doc.event),
+        createdAt: transformDate(booking._doc.createdAt),
+        updatedAt: transformDate(booking._doc.updatedAt),
+      }));
+    } catch (err) {
+      throw new Error(err);
+    }
+  },
   events: async () => {
     try {
       const events = await Event.find();
@@ -92,5 +122,40 @@ module.exports = {
     } catch (err) {
       throw new Error(err)
     }
-  }
+  },
+  bookEvent: async args => {
+    try {
+      const bookingEvent = await Event.findById(args.eventId);
+      const bookingUser = await User.findById(args.userId); // not used yet, but will need to prevent dupes
+      const booking = new Booking({
+        user: '5d4e42e98bea670bda76ce81',
+        event: bookingEvent,
+      });
+      const result = await booking.save();
+      return { 
+        ...result._doc,
+        user: user.bind(this, booking._doc.user),
+        event: singleEvent.bind(this, booking._doc.event),
+        createdAt: transformDate(result._doc.createdAt),
+        updatedAt: transformDate(result._doc.updatedAt),
+        
+      }
+    } catch(err) {
+      throw new Error(err);
+    }
+  },
+  cancelBooking: async args => {
+    try {
+      const booking = await Booking.findById(args.bookingId).populate('event');
+      const event = {
+        ...booking.event._doc,
+        createdBy: user.bind(this, booking.event._doc.createdBy),
+      }
+      console.log(event);
+      await Booking.deleteOne({ _id: args.bookingId });
+      return event;
+    } catch (err) {
+      throw new Error(err);
+    }
+  },
 };

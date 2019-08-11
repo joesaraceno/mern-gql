@@ -1,37 +1,44 @@
-const express = require("express");
+// packages
 const bodyParser = require("body-parser");
+const express = require("express");
 const graphqlHttp = require("express-graphql");
-const env = require("dotenv").config();
 const mongoose = require("mongoose");
 
-// const Event = require("./models/event");
-// const User = require('./models/user');
+// imports
+const env = require("dotenv").config();
 const graphQLSchema = require("./graphql/schema/index");
 const graphQLResolvers = require("./graphql/resolvers/index");
 
+// env vars and constants
 const port = "44441";
-const app = express();
 const { MONGO_USER, MONGO_PASSWORD, APP_DB } = process.env;
 
-app.use(bodyParser.json());
+// bootstrap
+const app = express();
 
-mongoose.connect(`
-  mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0-xswl0.azure.mongodb.net/${APP_DB}?retryWrites=true&w=majority
-`,{useNewUrlParser: true})
-.then (good => {
+try {
+  mongoose.connect(`
+    mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0-xswl0.azure.mongodb.net/${APP_DB}?retryWrites=true&w=majority`,
+    { 
+      useNewUrlParser: true
+    }
+  );
   app.listen(port);
-  const { host } = good.connection;
-  console.log(`Server listening on port ${port}, connected to database ${host}`);
-})
-.catch (err => {
+  console.log(`Server listening on port ${port}, connected to database`);
+  app.use(
+    "/graphql",
+    graphqlHttp({
+      schema: graphQLSchema,
+      rootValue: graphQLResolvers,
+      graphiql: true,
+    })
+  );
+  console.log(`Graphql api established at endpoint: '/graphql'`);
+  app.use(
+    bodyParser.json()
+  );
+  console.log(`Application serving JSON`);
+} catch (err) {
   console.error(`couldn't connect to server. Error: ${err}`);
-});
-
-app.use(
-  "/graphql",
-  graphqlHttp({
-    schema: graphQLSchema,
-    rootValue: graphQLResolvers,
-    graphiql: true,
-  })
-);
+  throw new Error(err);
+}

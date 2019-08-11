@@ -26,6 +26,10 @@ const eventSchema = new Schema({
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User'
+    },
+    booking: {
+      type: Schema.Types.ObjectId,
+      ref: 'Booking'
     }
 });
 

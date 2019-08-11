@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const graphqlHttp = require("express-graphql");
 const mongoose = require("mongoose");
+const cors = require ('cors');
 
 // imports
 const env = require("dotenv").config();
@@ -25,6 +26,9 @@ try {
   );
   app.listen(port);
   console.log(`Server listening on port ${port}, connected to database`);
+  app.use(cors({
+    origin: 'http://localhost:3000'
+  }));
   app.use(
     "/graphql",
     graphqlHttp({
@@ -37,7 +41,7 @@ try {
   app.use(
     bodyParser.json()
   );
-  console.log(`Application serving JSON`);
+  console.log(`CORS-enabled Application serving JSON`);
 } catch (err) {
   console.error(`couldn't connect to server. Error: ${err}`);
   throw new Error(err);

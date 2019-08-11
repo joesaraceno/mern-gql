@@ -12,6 +12,16 @@ const transformEvent = event => {
   }
 };
 
+const transformBooking = booking => {
+  return {
+    ...booking._doc,
+    user: user.bind(this, booking._doc.user),
+    event: singleEvent.bind(this, booking._doc.event),
+    createdAt: transformDate(booking._doc.createdAt),
+    updatedAt: transformDate(booking._doc.updatedAt),
+  }
+}
+
 const singleEvent = async (eventId) => {
   try {
     const event = await Event.findById(eventId);
@@ -46,7 +56,8 @@ const user = async (userId) => {
 
 module.exports = {
   events, 
-  singleEvent, 
+  singleEvent,
+  transformBooking,
   transformEvent,
   user,
 };

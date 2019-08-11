@@ -6,20 +6,16 @@ const User = require('../../models/user');
 const Booking = require('../../models/booking');
 
 const { transformDate } = require("../../utils/dateBuilder");
-const { singleEvent, events, user, transformEvent } = require('../../utils/schemaHandlers');
+const { singleEvent, events, user, transformEvent, transformBooking } = require('../../utils/schemaHandlers');
 
 module.exports = {
   bookings: async () => {
     try {
       const bookings = await Booking.find();
       // const bookingEvent = Event.find()
-      return bookings.map(booking => ({ 
-        ...booking._doc,
-        user: user.bind(this, booking._doc.user),
-        event: singleEvent.bind(this, booking._doc.event),
-        createdAt: transformDate(booking._doc.createdAt),
-        updatedAt: transformDate(booking._doc.updatedAt),
-      }));
+      return bookings.map(booking => { 
+        return transformBooking(booking);
+      });
     } catch (err) {
       throw new Error(err);
     }
@@ -94,14 +90,7 @@ module.exports = {
         event: bookingEvent,
       });
       const result = await booking.save();
-      return { 
-        ...result._doc,
-        user: user.bind(this, booking._doc.user),
-        event: singleEvent.bind(this, booking._doc.event),
-        createdAt: transformDate(result._doc.createdAt),
-        updatedAt: transformDate(result._doc.updatedAt),
-        
-      }
+      return transformBooking(result);
     } catch(err) {
       throw new Error(err);
     }

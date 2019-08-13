@@ -1,7 +1,9 @@
 import React from 'react';
-
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo-hooks';
+import styled from 'styled-components';
+
+import { Booking } from './Booking';
 
 const getBookings = gql`
   {
@@ -23,6 +25,10 @@ const getBookings = gql`
   }
 `;
 
+const BookingList = styled.ul`
+  list-style-type: none;
+`;
+
 const Bookings = () => {
   const { data, error, loading } = useQuery(getBookings);
   if (loading) {
@@ -33,21 +39,13 @@ const Bookings = () => {
   }
   
   return (
-    <ul>
+    <BookingList>
       {data.bookings.map(booking => {
-        const { event, user } = booking;
-        return (  
-          <li key="booking._id">      
-            <p>
-              EVENT: { JSON.stringify(event) }
-            </p>
-            <p>
-              USER: { JSON.stringify(user) }
-            </p>
-          </li>
+        return (
+          <Booking key="booking._id" booking={booking} />
         )
       })}
-    </ul>
+    </BookingList>
   );
 };
 

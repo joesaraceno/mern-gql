@@ -1,12 +1,13 @@
+require("dotenv").config();
 // packages
 const bodyParser = require("body-parser");
 const express = require("express");
 const graphqlHttp = require("express-graphql");
 const mongoose = require("mongoose");
 const cors = require ('cors');
+const isAuth = require('./middlewares/is-auth');
 
 // imports
-const env = require("dotenv").config();
 const graphQLSchema = require("./graphql/schema/index");
 const graphQLResolvers = require("./graphql/resolvers/index");
 
@@ -27,6 +28,7 @@ mongoose.connect(`
   app.use(cors({
     origin: 'http://localhost:3000'
   }));
+  app.use(isAuth);
   app.use(
     "/graphql",
     graphqlHttp({

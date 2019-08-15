@@ -3,7 +3,10 @@ const Booking = require('../../models/booking');
 const { transformBooking, transformEvent } = require('../../utils/schemaHandlers');
 
 module.exports = {
-  bookings: async () => {
+  bookings: async (args, req) => {
+    if(!req.isAuth) {
+      throw new Error('Unauthorized', 403);
+    }
     try {
       const bookings = await Booking.find();
       return bookings.map(booking => { 
@@ -13,7 +16,10 @@ module.exports = {
       throw new Error(err);
     }
   },
-  bookEvent: async args => {
+  bookEvent: async (args, req) => {
+    if(!req.isAuth) {
+      throw new Error('Unauthorized', 403);
+    }
     try {
       const bookingEvent = await Event.findById(args.eventId);
       const booking = new Booking({
@@ -26,7 +32,10 @@ module.exports = {
       throw new Error(err);
     }
   },
-  cancelBooking: async args => {
+  cancelBooking: async (args, req) => {
+    if(!req.isAuth) {
+      throw new Error('Unauthorized', 403);
+    }
     try {
       const booking = await Booking.findById(args.bookingId).populate('event');
       const event = transformEvent(booking.event);

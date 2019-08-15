@@ -14,16 +14,14 @@ const graphQLResolvers = require("./graphql/resolvers/index");
 const port = "44441";
 const { MONGO_USER, MONGO_PASSWORD, APP_DB } = process.env;
 
-// bootstrap
 const app = express();
 
-try {
-  mongoose.connect(`
-    mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0-xswl0.azure.mongodb.net/${APP_DB}?retryWrites=true&w=majority`,
-    { 
-      useNewUrlParser: true
-    }
-  );
+mongoose.connect(`
+  mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0-xswl0.azure.mongodb.net/${APP_DB}?retryWrites=true&w=majority`,
+  { 
+    useNewUrlParser: true
+  }
+).then(good => {
   app.listen(port);
   console.log(`Server listening on port ${port}, connected to database`);
   app.use(cors({
@@ -42,7 +40,6 @@ try {
     bodyParser.json()
   );
   console.log(`CORS-enabled Application serving JSON`);
-} catch (err) {
+}).catch(err => {
   console.error(`couldn't connect to server. Error: ${err}`);
-  throw new Error(err);
-}
+})

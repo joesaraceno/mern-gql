@@ -1,6 +1,5 @@
 const Event = require('../models/event')
 const User = require('../models/user');
-
 const { transformDate } = require('./dateBuilder');
 
 const transformEvent = event => {  

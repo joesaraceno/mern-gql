@@ -2,6 +2,8 @@ const User = require('../../models/user');
 const _ = require('lodash');
 const { events } = require('./event');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { TOKEN_HASH, TOKEN_EXPIRATION } = process.env;
 
 module.exports = {
   users: async () => {
@@ -30,4 +32,37 @@ module.exports = {
       throw new Error(err)
     }
   },
+  login: async args => {
+    try {
+      const { email, password } = args;
+      const userExists = await User.findOne({ email });
+      if (!userExists) {
+        throw new Error('Invalid credentials');
+      }
+      const passMatch = await bcrypt.compare( password, userExists.password );
+      if (!passMatch) {
+        throw new Error('Invalid credentials');
+      }
+      const token = await jwt.sign(
+        {
+          userId: userExists._id,
+          email: userExists.email
+        }, 
+        TOKEN_HASH,
+        {
+          expiresIn: `${TOKEN_EXPIRATION}h`
+        }
+      );
+      return {
+        userId: userExists._id,
+        token,
+        tokenExpiration: Number(TOKEN_EXPIRATION)
+      }
+    } catch (err) {
+      if (err.message === 'Invalid credentials') {
+        return err.message;
+      }
+      throw new Error("an error ocurred during sign in", err);
+    }
+  }
 };

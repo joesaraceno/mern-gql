@@ -40,9 +40,10 @@ const Bookings = () => {
   
   return (
     <BookingList>
+      <h3>Bookings List</h3>
       {data.bookings.map(booking => {
         return (
-          <Booking key="booking._id" booking={booking} />
+          <Booking key={booking._id} booking={booking} />
         )
       })}
     </BookingList>

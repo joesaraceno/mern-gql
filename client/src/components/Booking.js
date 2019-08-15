@@ -9,6 +9,8 @@ const BookingItem = styled.li`
   color: palevioletred;
   margin: 0 1em;
   padding: 0.25em 1em;
+  margin-top: 10px;
+  margin-bottom: 10px;
 `;
 
 export const Booking = props => {

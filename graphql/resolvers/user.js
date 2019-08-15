@@ -1,6 +1,7 @@
 const User = require('../../models/user');
 const _ = require('lodash');
 const { events } = require('./event');
+const bcrypt = require('bcryptjs');
 
 module.exports = {
   users: async () => {

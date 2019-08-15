@@ -2,7 +2,7 @@ const Event = require('../models/event')
 const User = require('../models/user');
 const { transformDate } = require('./dateBuilder');
 
-const transformEvent = event => {  
+const transformEvent = event => {
   return {
     ...event._doc,
     createdBy: user.bind(this, event.createdBy),

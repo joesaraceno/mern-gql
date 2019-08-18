@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import NavItem from './NavItem';
-import NavLogo from './NavLogo';
+import { NavItem } from './NavItem';
+import { NavLogo } from './NavLogo';
 
 const NavHeader = styled.header`
   position: fixed;
@@ -44,7 +44,7 @@ const navs = [
   },
 ];
 
-const Navigation = props => {
+export const Navigation = props => {
   return (
     <NavHeader>
       <NavItems>
@@ -56,4 +56,3 @@ const Navigation = props => {
     </NavHeader>
   )
 };
-export default Navigation;

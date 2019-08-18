@@ -17,6 +17,7 @@ const ItemContents = styled.div`
   width: 100%;
   color: blueviolet;
   a {
+    transition: border .1s ease-out;
     color: rgb(42, 46, 43, .9);
     padding-top: 5px;
     padding-bottom: 2px;
@@ -30,11 +31,10 @@ const ItemContents = styled.div`
       padding-bottom: 0;
       border-bottom: 2px solid rgba(42, 46, 43, 0.9);
     }
-
   }
 `
 
-const NavItem = props => {
+export const NavItem = props => {
   const { title, url } = props.navInfo;
   return (
     <Item>
@@ -50,4 +50,3 @@ const NavItem = props => {
     </Item>
   )
 };
-export default NavItem;

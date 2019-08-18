@@ -3,6 +3,7 @@ const jwt = require ('jsonwebtoken');
 
 module.exports = (req, res, next) => {
   // if token is on headers, allow request
+  // TODO: dont commit this
   req.isAuth = true;
   return next();
   const authHeader = req.get('Authorization');

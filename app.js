@@ -5,7 +5,7 @@ const express = require("express");
 const graphqlHttp = require("express-graphql");
 const mongoose = require("mongoose");
 const cors = require ('cors');
-const isAuth = require('./middlewares/is-auth');
+const isAuth = require('./middlewares/isAuthenticated');
 
 // imports
 const graphQLSchema = require("./graphql/schema/index");

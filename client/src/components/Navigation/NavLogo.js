@@ -12,12 +12,10 @@ const Logo = styled.div`
   padding: 0 10px;
 `;
 
-const NavLogo = () => {
+export const NavLogo = () => {
   return (
     <NavLink to="/">
       <Logo />
     </NavLink>
   )
 };
-
-export default NavLogo;

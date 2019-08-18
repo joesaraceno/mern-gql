@@ -4,6 +4,7 @@ import { useQuery } from 'react-apollo-hooks';
 import styled from 'styled-components';
 
 import { Booking } from './Booking';
+import { Loader } from './Shared/Loader';
 
 const getBookings = gql`
   {
@@ -29,25 +30,28 @@ const BookingList = styled.ul`
   list-style-type: none;
 `;
 
-const Bookings = () => {
+export const Bookings = () => {
   const { data, error, loading } = useQuery(getBookings);
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Loader />
+    );
   }
   if (error) {
     return <div>Error! {error.message}</div>;
   }
   
   return (
-    <BookingList>
+    <React.Fragment>
       <h3>Bookings List</h3>
-      {data.bookings.map(booking => {
-        return (
-          <Booking key={booking._id} booking={booking} />
-        )
-      })}
-    </BookingList>
+      <BookingList>
+        {data.bookings.map(booking => {
+          return (
+            <Booking key={booking._id} booking={booking} />
+          )
+        })}
+      </BookingList>
+    </React.Fragment>
   );
 };
-
-export default Bookings;

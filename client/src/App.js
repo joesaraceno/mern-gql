@@ -6,9 +6,9 @@ import styled from 'styled-components';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks';
-import Bookings from './components/Bookings';
-import AuthPage from './components/Auth';
-import Navigation from './components/Navigation/Navigation';
+import { Bookings } from './components/Bookings';
+import { AuthPage }from './components/Auth';
+import { Navigation } from './components/Navigation/Navigation';
 const client = new ApolloClient({
   uri: 'http://localhost:44441/graphql',
 });

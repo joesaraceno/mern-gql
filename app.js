@@ -25,9 +25,18 @@ mongoose.connect(`
 ).then(good => {
   app.listen(port);
   console.log(`Server listening on port ${port}, connected to database`);
-  app.use(cors({
-    origin: 'http://localhost:3000'
-  }));
+  app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    return next();
+  });
+  // app.use(cors({
+  //   origin: 'http://localhost:3000'
+  // }));
   app.use(isAuth);
   app.use(
     "/graphql",

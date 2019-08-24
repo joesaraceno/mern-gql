@@ -34,9 +34,6 @@ mongoose.connect(`
     }
     return next();
   });
-  // app.use(cors({
-  //   origin: 'http://localhost:3000'
-  // }));
   app.use(isAuth);
   app.use(
     "/graphql",

@@ -77,8 +77,7 @@ let emailElement = React.createRef();
 let passwordElement = React.createRef();
 export const AuthPage = () => {
 
-  
-  const [ isLogin, setLogin ]                             = useState(true);
+  const [ isLoginState, setLoginState ]                          = useState(true);
   
   const [ loginUser, 
     { data, loading, error } ]                            = useLazyQuery(LOGIN_USER);
@@ -90,7 +89,7 @@ export const AuthPage = () => {
     setLoggedInUser(data);
   }
 
-  if(!isLogin) {
+  if(!isLoginState) {
     return (
       <React.Fragment>
         <h3>Signup</h3>
@@ -117,7 +116,7 @@ export const AuthPage = () => {
             <input type="text" id="password" ref={passwordElement}/>
           </div>
           <div className="form-actions">
-            <button type="button" onClick={() => {setLogin(true)}}>Switch to Login</button>
+            <button type="button" onClick={() => {setLoginState(true)}}>Switch to Login</button>
             <button type="submit">Create User</button>
           </div>
           { formError && <div>Email or password are invalid...</div> }
@@ -154,11 +153,11 @@ export const AuthPage = () => {
             <input type="text" id="password" ref={passwordElement}/>
           </div>
           <div className="form-actions">
-            <button type="button" onClick={() => {setLogin(false)}}>Switch to Signup</button>
+            <button type="button" onClick={() => {setLoginState(false)}}>Switch to Signup</button>
             <button type="submit">Login</button>
           </div>
           { error && <div>Email or password are invalid...{JSON.stringify(error)}</div> }
-          { loading && <p>Loading...</p> }
+          { loading && <p>Logging you in...</p> }
         </LoginForm>
       </React.Fragment>
     )

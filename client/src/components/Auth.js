@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import gql from 'graphql-tag';
 import { useMutation, useLazyQuery } from '@apollo/react-hooks';
+
+import LOGIN_USER from '../Graphql/Queries/LoginUser';
+import SIGNUP_USER from '../Graphql/Mutations/SignupUser';
 
 let formError = false;
 
@@ -45,26 +47,6 @@ const LoginForm = styled.form`
         background: #01A7A7;
         border-color: #01A7A7;
       }
-    }
-  }
-
-`;
-
-const SIGNUP_USER = gql`
-  mutation SignupUser($email: String!, $password: String!) {
-    createUser(user: {email: $email, password: $password}) {
-      _id, 
-      email
-    }
-  }
-`;
-
-const LOGIN_USER = gql`
-  query LoginUser($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      userId,
-      token,
-      tokenExpiration
     }
   }
 `;

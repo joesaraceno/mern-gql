@@ -1,22 +1,25 @@
-import React from 'react';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
-import './App.css';
+import React from 'react';
 import styled from 'styled-components';
 
+
 import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { createHttpLink } from 'apollo-link-http';
+import { ApolloLink } from "apollo-link";
 import { ApolloProvider } from 'react-apollo';
 import { ApolloProvider as ApolloHooksProvider } from '@apollo/react-hooks';
-import { Bookings } from './Components/Bookings';
+import { createHttpLink } from 'apollo-link-http';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+
+
 import { AuthPage }from './Components/Auth';
+import { Bookings } from './Components/Bookings';
 import { Navigation } from './Components/Navigation/Navigation';
 
-import { ApolloLink } from "apollo-link";
-// import { createHttpLink } from "apollo-link-http";
+import './App.css';
 
 const httpLink = createHttpLink({ uri: "http://localhost:44441/graphql" });
 const middlewareLink = new ApolloLink((operation, forward) => {
+  debugger;
   operation.setContext({
     headers: {
       authorization: localStorage.getItem("token") || null

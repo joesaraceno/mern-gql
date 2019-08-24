@@ -1,37 +1,17 @@
 import React from 'react';
-import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import styled from 'styled-components';
 
 import { Booking } from './Booking';
 import { Loader } from './Shared/Loader';
-
-const getBookings = gql`
-  {
-    bookings {
-      _id,
-      event {
-        _id, 
-        title,
-        description,
-        start_time,
-        end_time,
-      },
-      user {
-        _id,
-        email,
-        password
-      }
-    }
-  }
-`;
+import GET_BOOKINGS from '../Graphql/Queries/GetBookings';
 
 const BookingList = styled.ul`
   list-style-type: none;
 `;
 
 export const Bookings = () => {
-  const { data, error, loading } = useQuery(getBookings);
+  const { data, error, loading } = useQuery(GET_BOOKINGS);
 
   if (loading) {
     return (
